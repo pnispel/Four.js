@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+<head>
+	<link rel="stylesheet" type="text/css" href="css/normalize.css" >
+
+	<style>
+		#stats {
+			position: absolute;
+			top: 10px;
+			left: 10px;
+		}
+	</style>
+</head>
+
+<body>
+
+	<script type="text/javascript" src="js/stats.min.js"></script>
+	<script type="text/javascript" src="../build/Four.js"></script>
+	<script>
+
+		var stats = new Stats();
+
+		document.body.appendChild( stats.domElement );
+
+		var scene = new FOUR.Scene();
+		var renderer = new FOUR.WebGLRenderer();
+
+		var camera = new FOUR.PerspectiveCamera();
+		camera.get_position().set( 0, 0, -200 );
+
+		var light = new FOUR.PointLight( 0xffffff );
+		light.get_position().set( 0, 200, 0 );
+		
+		var obj = new FOUR.Mesh(
+			new FOUR.CubeGeometry( 10, 10, 10 )
+		);
+
+		scene.add( light );
+		scene.add( obj );
+
+		animate();
+
+		function animate () {
+
+			window.requestAnimationFrame( animate );
+
+			stats.update();
+
+			//renderer.render( scene, camera );
+
+		}
+
+
+	</script>
+</body>
+
+</html>
