@@ -3,7 +3,7 @@
 #include "../Matrix.h"
 #include "../Vector.h"
 #include "../Sphere.h"
-#include "../../core/Object3D.h"
+//#include "../../core/Object3D.h"
 
 Frustum::Frustum () {
 
