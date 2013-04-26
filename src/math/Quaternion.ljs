@@ -1,0 +1,6 @@
+
+struct Quaternion {
+
+	double x, y, z, w;
+
+};

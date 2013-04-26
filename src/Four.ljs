@@ -1,0 +1,6 @@
+
+extern malloc, free, abs;
+
+function main () {
+	
+}

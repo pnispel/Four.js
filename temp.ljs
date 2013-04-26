@@ -1,0 +1,589 @@
+
+extern malloc, free, abs;
+
+function main () {
+	
+}
+struct Quaternion {
+
+	double x, y, z, w;
+
+};
+
+struct Vector3 {
+
+    function Vector3 * Vector3( double x, double y, double z ) {
+
+        this->x = x;
+        this->y = y;
+        this->z = z;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function void destroy() {
+
+        free( (byte*)(this) );
+        
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * set ( double x, double y, double z ) { 
+
+        this->x = x; 
+        this->y = y; 
+        this->z = z; 
+
+        return this; 
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function double get ( int index ) {
+
+        if ( index == 0 ) {
+            return this->x;
+        } else if ( index == 1 ) {
+            return this->y;
+        } else if ( index == 2) {
+            return this->z;
+        } 
+    
+        return 0;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * add ( Vector3 * vector ) {
+
+        this->x += vector->x;
+        this->y += vector->y;
+        this->z += vector->z;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * sub ( Vector3 * vector ) {
+
+        this->x = this->x - vector->x;
+        this->y = this->y - vector->y;
+        this->z = this->z - vector->z;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * addVectors ( Vector3 * a, Vector3 * b ) {
+
+        this->x = a->x + b->x;
+        this->y = a->y + b->y;
+        this->z = a->z + b->z;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * subVectors ( Vector3 * a, Vector3 * b ) {
+
+        this->x = a->x - b->x;
+        this->y = a->y - b->y;
+        this->z = a->z - b->z;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * multiplyVectors ( Vector3 * a, Vector3 * b ) {
+
+        this->x = a->x * b->x;
+        this->y = a->y * b->y;
+        this->z = a->z * b->z;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * applyMatrix3 ( Matrix3 * m ) {
+
+        let double vx = this->x;
+        let double vy = this->y;
+        let double vz = this->z;
+
+        let double * e = m->data;
+
+        this->x = e[0] * vx + e[3] * vy + e[6] * vz;
+        this->y = e[1] * vx + e[4] * vy + e[7] * vz;
+        this->z = e[2] * vx + e[5] * vy + e[8] * vz;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * applyMatrix4 ( Matrix4 * m ) {
+
+        let double vx = this->x;
+        let double vy = this->y;
+        let double vz = this->z;
+
+        let double * e = m->data;
+
+        this->x = e[0] * vx + e[4] * vy + e[8] * vz + e[12];
+        this->y = e[1] * vx + e[5] * vy + e[9] * vz + e[13];
+        this->z = e[2] * vx + e[6] * vy + e[10] * vz + e[14];
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * applyProjection ( Matrix4 * m ) {
+
+        let double vx = this->x;
+        let double vy = this->y;
+        let double vz = this->z;
+
+        let double * e = m->data;
+        let double d = 1 / ( e[3] * vx + e[7] * vy + e[11] * vz + e[15] );
+
+        this->x = ( e[0] * vx + e[4] * vy + e[8] * vz + e[12] ) * d;
+        this->y = ( e[1] * vx + e[5] * vy + e[9] * vz + e[13] ) * d;
+        this->z = ( e[2] * vx + e[6] * vy + e[10] * vz + e[14] ) * d;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * applyQuaternion ( Quaternion * q ) {
+
+        let double vx = this->x;
+        let double vy = this->y;
+        let double vz = this->z;
+
+        let double qx = q->x;
+        let double qy = q->y;
+        let double qz = q->z;
+        let double qw = q->w;
+
+        let double ix = qw * vx + qy * vz - qz * vy;
+        let double iy = qw * vy + qy * vx - qz * vz;
+        let double iz = qw * vz + qy * vy - qz * vx;
+        let double iw = -qw * vx - qy * vy - qz * vz;
+
+        this->x = ix * qw + iw * -qx + iy * -qz - iz * -qy;
+        this->y = iy * qw + iw * -qy + iz * -qx - ix * -qz;
+        this->z = iz * qw + iw * -qz + ix * -qy - iy * -qx;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * addScalar ( double scalar ) {
+
+        this->x += scalar;
+        this->y += scalar;
+        this->z += scalar;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * multiplyScalar ( double scalar ) {
+
+        this->x *= scalar;
+        this->y *= scalar;
+        this->z *= scalar;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * divideScalar ( double s ) {
+
+        if ( s != 0 ) {
+
+            this->x /= s;
+            this->y /= s;
+            this->z /= s;
+
+        } else {
+
+            this->x = 0;
+            this->y = 0;
+            this->z = 0;
+
+        }
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * multiply ( Vector3 * vector ) {
+
+        this->x *= vector->x;
+        this->y *= vector->y;
+        this->z *= vector->z;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * divide ( Vector3 * v ) {
+
+        this->x /= v->x;
+        this->y /= v->y;
+        this->z /= v->z;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * transformDirection ( Matrix4 * m ) {
+
+        let double vx = this->x;
+        let double vy = this->y;
+        let double vz = this->z;
+
+        let double * e = m->data;
+
+        this->x = e[0] * vx + e[4] * vy + e[8] * vz;
+        this->y = e[1] * vx + e[5] * vy + e[9] * vz;
+        this->z = e[2] * vx + e[6] * vy + e[10] * vz;
+
+        this->normalize();
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * min ( Vector3 * v ) {
+
+        if ( this->x > v->x ) {
+
+            this->x = v->x;
+
+        }
+
+        if ( this->y > v->y ) {
+
+            this->y = v->y;
+
+        }
+
+        if ( this->z > v->z ) {
+
+            this->z = v->z;
+
+        }
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * max ( Vector3 * v ) {
+
+        if ( this->x < v->x ) {
+
+            this->x = v->x;
+
+        }
+
+        if ( this->y < v->y ) {
+
+            this->y = v->y;
+
+        }
+
+        if ( this->z < v->z ) {
+
+            this->z = v->z;
+
+        }
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * clamp ( Vector3 * min, Vector3 * max ) {
+
+        if ( this->x < min->x ) {
+
+            this->x = min->x;
+
+        } else if ( this->x > max->x ) {
+
+            this->x = max->x;
+
+        }
+
+        if ( this->y < min->y ) {
+
+            this->y = min->y;
+
+        } else if ( this->y > max->y ) {
+
+            this->y = max->y;
+
+        }
+
+        if ( this->z < min->z ) {
+
+            this->z = min->z;
+
+        } else if ( this->z > max->z ) {
+
+            this->z = max->z;
+
+        }
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * negate () {
+
+        return this->multiplyScalar( -1.000 );
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function double dot ( Vector3 * v ) {
+
+        return this->x * v->x + this->y * v->y + this->z * v->z;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function double lengthSquared () {
+
+        return this->x * this->x + this->y * this->y + this->z * this->z;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function double length () {
+
+        return sqrt( this->x * this->x + this->y * this->y + this->z * this->z );
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function double lengthManhattan () {
+
+        return double( abs( this->x ) + abs( this->y ) + abs( this->z ) );
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * normalize () {
+
+        return this->divideScalar( this->length() );
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * setLength ( double l ) {
+
+        let double oldLength = this->length();
+
+        if ( oldLength != 0 && oldLength != l ) {
+
+            this->multiplyScalar( l / oldLength );
+
+        }
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * lerp ( Vector3 * v, double alpha ) {
+
+        this->x += ( v->x - this->x ) * alpha;
+        this->y += ( v->y - this->y ) * alpha;
+        this->z += ( v->z - this->z ) * alpha;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * cross ( Vector3 * v ) {
+
+        let double vx = this->x;
+        let double vy = this->y;
+        let double vz = this->z;
+
+        this->x = vy * v->z - vz * v->y;
+        this->y = vz * v->x - vx * v->z;
+        this->z = vx * v->y - vy * v->x;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * crossVectors ( Vector3 * a, Vector3 * b ) {
+
+        this->x = a->y * b->z - a->z * b->y;
+        this->y = a->z * b->x - a->x * b->z;
+        this->z = a->x * b->y - a->y * b->x;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function double distanceTo ( Vector3 * v ) {
+
+        return sqrt( this->distanceToSquared( v ) );
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function double distanceToSquared ( Vector3 * v ) {
+
+        let double dx = this->x - v->x;
+        let double dy = this->y - v->y;
+        let double dz = this->z - v->z;
+
+        return dx * dx + dy * dy + dz * dz;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * getPositionFromMatrix( Matrix4 * m ) {
+
+        this->x = m->data[12];
+        this->y = m->data[13];
+        this->z = m->data[14];
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * getScaleFromMatrix( Matrix4 * m ) {
+
+        let double sx = this->set( m->data[0], m->data[1], m->data[2] )->length();
+        let double sy = this->set( m->data[4], m->data[5], m->data[6] )->length();
+        let double sz = this->set( m->data[8], m->data[9], m->data[10] )->length();
+
+        this->x = sx;
+        this->y = sy;
+        this->z = sz;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function int equals ( Vector3 * v ) {
+
+        if ( v->x == this->x && v->y == this->y && v->z == this->z ) {
+
+            return 1;
+            
+        }
+
+        return 0;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * clone () {
+
+        let Vector3 * clone = new Vector3(0,0,0);
+        clone->x = this->x;
+        clone->y = this->y;
+        clone->z = this->z;
+
+        return clone;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    function Vector3 * copy ( Vector3 * vector ) {
+
+        this->x = vector->x;
+        this->y = vector->y;
+        this->z = vector->z;
+
+        return this;
+
+    }
+
+    //----------------------------------------------------------------//
+
+    double x, y, z;
+
+}
+
+struct Matrix3 {
+
+	double data[9];
+
+};
+
+struct Matrix4 {
+
+	double data[16];
+
+};
