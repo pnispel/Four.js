@@ -160,7 +160,7 @@ Vector3.prototype.copy = function (arg0) {
 	return asm.Vector3$copy(this.ptr, arg0.ptr);
 };
 
-Vector3.prototype.destory = function() {
+Vector3.prototype.destroy = function() {
 	asm.Vector3$destroy(this.ptr);
 };
 
